@@ -54,6 +54,7 @@ import { REASON_BLOCK_EDITOR_UNKOWN_IFRAME_LOAD_FAILURE } from 'calypso/state/de
 import { setMediaLibrarySelectedItems } from 'calypso/state/media/actions';
 import { fetchMediaItem, getMediaItem } from 'calypso/state/media/thunks';
 import Iframe from './iframe';
+import { ResponseCart } from 'calypso/my-sites/checkout/composite-checkout/hooks/use-shopping-cart-manager/types';
 /**
  * Types
  */
@@ -90,7 +91,7 @@ interface State {
 	multiple?: any;
 	postUrl?: T.URL;
 	previewUrl: T.URL;
-	cartData?: object;
+	cartData?: ResponseCart;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -587,7 +588,7 @@ class CalypsoifyIframe extends Component<
 
 	closePreviewModal = () => this.setState( { isPreviewVisible: false } );
 
-	openCustomizer = ( autofocus: object, unsavedChanges: boolean ) => {
+	openCustomizer = ( autofocus: Record< string, string >, unsavedChanges: boolean ) => {
 		let { customizerUrl } = this.props;
 		if ( autofocus ) {
 			const [ key, value ] = Object.entries( autofocus )[ 0 ];
