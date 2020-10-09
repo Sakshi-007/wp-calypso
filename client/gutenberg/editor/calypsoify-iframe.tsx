@@ -724,7 +724,7 @@ class CalypsoifyIframe extends Component<
 					) }
 				</div>
 				<AsyncLoad
-					require="post-editor/editor-media-modal"
+					require="calypso/post-editor/editor-media-modal"
 					placeholder={ null }
 					disabledDataSources={ getDisabledDataSources( allowedTypes ) }
 					enabledFilters={ getEnabledFilters( allowedTypes ) }
@@ -738,7 +738,7 @@ class CalypsoifyIframe extends Component<
 				/>
 				{ isCheckoutOverlayEnabled && isCheckoutModalVisible && (
 					<AsyncLoad
-						require="blocks/editor-checkout-modal"
+						require="calypso/blocks/editor-checkout-modal"
 						onClose={ this.closeCheckoutModal }
 						isOpen={ isCheckoutModalVisible }
 						cartData={ cartData }
