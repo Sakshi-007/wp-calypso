@@ -88,7 +88,11 @@ export async function applePayProcessor(
 		},
 		wpcomTransaction,
 		transactionOptions
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'SUCCESS', payload: response };
+		} );
 }
 
 export async function stripeCardProcessor(
