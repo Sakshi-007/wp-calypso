@@ -14,8 +14,8 @@ const debug = debugFactory( 'calypso:composite-checkout:use-get-thank-you-url' )
 /**
  * Internal dependencies
  */
-import { isExternal } from 'lib/url';
-import config from 'config';
+import { isExternal } from 'calypso/lib/url';
+import config from 'calypso/config';
 import {
 	hasRenewalItem,
 	getAllCartItems,
@@ -27,15 +27,15 @@ import {
 	hasPremiumPlan,
 	hasBusinessPlan,
 	hasEcommercePlan,
-} from 'lib/cart-values/cart-items';
-import { managePurchase } from 'me/purchases/paths';
-import { isValidFeatureKey } from 'lib/plans/features-list';
-import { JETPACK_PRODUCTS_LIST } from 'lib/products-values/constants';
-import { JETPACK_RESET_PLANS } from 'lib/plans/constants';
-import { persistSignupDestination, retrieveSignupDestination } from 'signup/storageUtils';
-import { getSelectedSite } from 'state/ui/selectors';
-import isEligibleForSignupDestination from 'state/selectors/is-eligible-for-signup-destination';
-import { abtest } from 'lib/abtest';
+} from 'calypso/lib/cart-values/cart-items';
+import { managePurchase } from 'calypso/me/purchases/paths';
+import { isValidFeatureKey } from 'calypso/lib/plans/features-list';
+import { JETPACK_PRODUCTS_LIST } from 'calypso/lib/products-values/constants';
+import { JETPACK_RESET_PLANS } from 'calypso/lib/plans/constants';
+import { persistSignupDestination, retrieveSignupDestination } from 'calypso/signup/storageUtils';
+import { getSelectedSite } from 'calypso/state/ui/selectors';
+import isEligibleForSignupDestination from 'calypso/state/selectors/is-eligible-for-signup-destination';
+import { abtest } from 'calypso/lib/abtest';
 
 export function getThankYouPageUrl( {
 	siteSlug,
@@ -54,6 +54,7 @@ export function getThankYouPageUrl( {
 	hideNudge,
 	didPurchaseFail,
 	isTransactionResultEmpty,
+	isInEditor,
 } ) {
 	debug( 'starting getThankYouPageUrl' );
 	// If we're given an explicit `redirectTo` query arg, make sure it's either internal
@@ -102,6 +103,13 @@ export function getThankYouPageUrl( {
 	debug( 'fallbackUrl is', fallbackUrl );
 
 	saveUrlToCookieIfEcomm( saveUrlToCookie, cart, fallbackUrl );
+
+	// If the user is making a purchase/upgrading within the editor,
+	// we want to return them back to the editor after the purchase is successful.
+	if ( isInEditor && ! hasEcommercePlan( cart ) ) {
+		saveUrlToCookie( window?.location.href );
+	}
+
 	modifyCookieUrlIfAtomic( getUrlFromCookie, saveUrlToCookie, siteSlug );
 
 	// Fetch the thank-you page url from a cookie if it is set
@@ -369,6 +377,7 @@ export function useGetThankYouUrl( {
 	siteId,
 	hideNudge,
 	recordEvent,
+	isInEditor,
 } ) {
 	const selectedSiteData = useSelector( ( state ) => getSelectedSite( state ) );
 	const adminUrl = selectedSiteData?.options?.admin_url;
@@ -404,6 +413,7 @@ export function useGetThankYouUrl( {
 			hideNudge,
 			didPurchaseFail,
 			isTransactionResultEmpty,
+			isInEditor,
 		};
 		debug( 'getThankYouUrl called with', getThankYouPageUrlArguments );
 		const url = getThankYouPageUrl( getThankYouPageUrlArguments );

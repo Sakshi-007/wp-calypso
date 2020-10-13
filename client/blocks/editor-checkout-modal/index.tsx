@@ -3,16 +3,16 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import wp from 'lib/wp';
+import wp from 'calypso/lib/wp';
 import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import { StripeHookProvider } from 'lib/stripe';
-import { fetchStripeConfiguration } from 'my-sites/checkout/composite-checkout/payment-method-helpers';
-import CompositeCheckout from 'my-sites/checkout/composite-checkout/composite-checkout';
-import { getSelectedSite } from 'state/ui/selectors';
+import { StripeHookProvider } from 'calypso/lib/stripe';
+import { fetchStripeConfiguration } from 'calypso/my-sites/checkout/composite-checkout/payment-method-helpers';
+import CompositeCheckout from 'calypso/my-sites/checkout/composite-checkout/composite-checkout';
+import { getSelectedSite } from 'calypso/state/ui/selectors';
 
 /**
  * Style dependencies
@@ -21,7 +21,12 @@ import './style.scss';
 
 const wpcom = wp.undocumented();
 
-interface CartData {
+type Site = {
+	ID: number;
+	slug: string;
+};
+
+export interface CartData {
 	products: Array< {
 		product_id: number;
 		product_slug: string;
@@ -29,7 +34,7 @@ interface CartData {
 }
 
 type Props = {
-	site: object;
+	site: Site;
 	cartData: CartData;
 	onClose: () => void;
 	isOpen: boolean;
@@ -65,6 +70,7 @@ class EditorCheckoutModal extends Component< Props > {
 				</button>
 				<StripeHookProvider fetchStripeConfiguration={ fetchStripeConfigurationWpcom }>
 					<CompositeCheckout
+						isInEditor
 						siteId={ site.ID }
 						siteSlug={ site.slug }
 						getCart={ this.getCart.bind( this ) }
@@ -75,7 +81,7 @@ class EditorCheckoutModal extends Component< Props > {
 	}
 }
 
-function fetchStripeConfigurationWpcom( args: object ) {
+function fetchStripeConfigurationWpcom( args: unknown ) {
 	return fetchStripeConfiguration( args, wpcom );
 }
 

@@ -11,9 +11,9 @@ import { localize, LocalizeProps } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import AsyncLoad from 'components/async-load';
-import MediaStore from 'lib/media/store';
-import { getSelectedSiteId, getSelectedSiteSlug } from 'state/ui/selectors';
+import AsyncLoad from 'calypso/components/async-load';
+import MediaStore from 'calypso/lib/media/store';
+import { getSelectedSiteId, getSelectedSiteSlug } from 'calypso/state/ui/selectors';
 import {
 	getCustomizerUrl,
 	getSiteOption,
@@ -21,40 +21,47 @@ import {
 	isRequestingSite,
 	isJetpackSite,
 	getSite,
-} from 'state/sites/selectors';
-import { addQueryArgs } from 'lib/route';
+} from 'calypso/state/sites/selectors';
+import { addQueryArgs } from 'calypso/lib/route';
 import { getEnabledFilters, getDisabledDataSources, mediaCalypsoToGutenberg } from './media-utils';
-import { replaceHistory, navigate } from 'state/ui/actions';
-import { clearLastNonEditorRoute, setRoute } from 'state/route/actions';
-import { updateSiteFrontPage } from 'state/sites/actions';
-import getCurrentRoute from 'state/selectors/get-current-route';
-import getPostTypeTrashUrl from 'state/selectors/get-post-type-trash-url';
-import getGutenbergEditorUrl from 'state/selectors/get-gutenberg-editor-url';
-import { getSelectedEditor } from 'state/selectors/get-selected-editor';
-import getEditorCloseConfig from 'state/selectors/get-editor-close-config';
-import wpcom from 'lib/wp';
-import EditorRevisionsDialog from 'post-editor/editor-revisions/dialog';
-import { openPostRevisionsDialog } from 'state/posts/revisions/actions';
-import { setEditorIframeLoaded, startEditingPost } from 'state/editor/actions';
-import { notifyDesktopViewPostClicked, notifyDesktopCannotOpenEditor } from 'state/desktop/actions';
+import { replaceHistory, navigate } from 'calypso/state/ui/actions';
+import { clearLastNonEditorRoute, setRoute } from 'calypso/state/route/actions';
+import { updateSiteFrontPage } from 'calypso/state/sites/actions';
+import getCurrentRoute from 'calypso/state/selectors/get-current-route';
+import getPostTypeTrashUrl from 'calypso/state/selectors/get-post-type-trash-url';
+import getGutenbergEditorUrl from 'calypso/state/selectors/get-gutenberg-editor-url';
+import { getSelectedEditor } from 'calypso/state/selectors/get-selected-editor';
+import getEditorCloseConfig from 'calypso/state/selectors/get-editor-close-config';
+import wpcom from 'calypso/lib/wp';
+import EditorRevisionsDialog from 'calypso/post-editor/editor-revisions/dialog';
+import { openPostRevisionsDialog } from 'calypso/state/posts/revisions/actions';
+import { setEditorIframeLoaded, startEditingPost } from 'calypso/state/editor/actions';
+import {
+	notifyDesktopViewPostClicked,
+	notifyDesktopCannotOpenEditor,
+} from 'calypso/state/desktop/actions';
 import { Placeholder } from './placeholder';
-import WebPreview from 'components/web-preview';
-import { editPost, trashPost } from 'state/posts/actions';
-import { getEditorPostId } from 'state/editor/selectors';
-import { protectForm, ProtectedFormProps } from 'lib/protect-form';
-import PageViewTracker from 'lib/analytics/page-view-tracker';
-import config from 'config';
-import EditorDocumentHead from 'post-editor/editor-document-head';
-import isUnlaunchedSite from 'state/selectors/is-unlaunched-site';
-import { withStopPerformanceTrackingProp, PerformanceTrackProps } from 'lib/performance-tracking';
-import { REASON_BLOCK_EDITOR_UNKOWN_IFRAME_LOAD_FAILURE } from 'state/desktop/window-events';
-import { setMediaLibrarySelectedItems } from 'state/media/actions';
-import { fetchMediaItem, getMediaItem } from 'state/media/thunks';
+import WebPreview from 'calypso/components/web-preview';
+import { editPost, trashPost } from 'calypso/state/posts/actions';
+import { getEditorPostId } from 'calypso/state/editor/selectors';
+import { protectForm, ProtectedFormProps } from 'calypso/lib/protect-form';
+import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
+import config from 'calypso/config';
+import EditorDocumentHead from 'calypso/post-editor/editor-document-head';
+import isUnlaunchedSite from 'calypso/state/selectors/is-unlaunched-site';
+import {
+	withStopPerformanceTrackingProp,
+	PerformanceTrackProps,
+} from 'calypso/lib/performance-tracking';
+import { REASON_BLOCK_EDITOR_UNKOWN_IFRAME_LOAD_FAILURE } from 'calypso/state/desktop/window-events';
+import { setMediaLibrarySelectedItems } from 'calypso/state/media/actions';
+import { fetchMediaItem, getMediaItem } from 'calypso/state/media/thunks';
 import Iframe from './iframe';
+import type { CartData } from 'calypso/client/blocks/editor-checkout-modal';
 /**
  * Types
  */
-import * as T from 'types';
+import * as T from 'calypso/types';
 
 /**
  * Style dependencies
@@ -87,7 +94,7 @@ interface State {
 	multiple?: any;
 	postUrl?: T.URL;
 	previewUrl: T.URL;
-	cartData?: object;
+	cartData?: CartData;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -584,7 +591,10 @@ class CalypsoifyIframe extends Component<
 
 	closePreviewModal = () => this.setState( { isPreviewVisible: false } );
 
-	openCustomizer = ( autofocus: object, unsavedChanges: boolean ) => {
+	openCustomizer = (
+		autofocus: Record< string, unknown > | undefined,
+		unsavedChanges: boolean
+	) => {
 		let { customizerUrl } = this.props;
 		if ( autofocus ) {
 			const [ key, value ] = Object.entries( autofocus )[ 0 ];
@@ -721,7 +731,7 @@ class CalypsoifyIframe extends Component<
 					) }
 				</div>
 				<AsyncLoad
-					require="post-editor/editor-media-modal"
+					require="calypso/post-editor/editor-media-modal"
 					placeholder={ null }
 					disabledDataSources={ getDisabledDataSources( allowedTypes ) }
 					enabledFilters={ getEnabledFilters( allowedTypes ) }
@@ -735,10 +745,11 @@ class CalypsoifyIframe extends Component<
 				/>
 				{ isCheckoutOverlayEnabled && isCheckoutModalVisible && (
 					<AsyncLoad
-						require="blocks/editor-checkout-modal"
+						require="calypso/blocks/editor-checkout-modal"
 						onClose={ this.closeCheckoutModal }
-						isOpen={ isCheckoutModalVisible }
 						cartData={ cartData }
+						placeholder={ null }
+						isOpen
 					/>
 				) }
 				<EditorRevisionsDialog loadRevision={ this.loadRevision } />
