@@ -108,6 +108,25 @@ function render_range( new_sub_text, new_sub_range, range_info, range_data, opti
 			}
 			build_chunks( new_sub_text, new_sub_range, range_data, new_container, options );
 			break;
+		case 'figure':
+			if ( range_info.hasOwnProperty( 'class' ) && range_info.class.includes( 'wp-block-table' ) ) {
+				new_container = document.createElement( 'a' );
+				new_container.setAttribute( 'href', null ); // TODO: link
+				new_container.setAttribute( 'target', '_blank' );
+				new_container.setAttribute( 'rel', 'noopener noreferrer' );
+				new_classes.push( 'table-fallback-link' );
+				new_container.innerHTML = 'Click here to view table';
+			} else {
+				new_container = document.createElement( range_info_type );
+				if ( range_info.hasOwnProperty( 'class' ) ) {
+					new_classes.push( range_info.class );
+				}
+				if ( range_info.hasOwnProperty( 'style' ) ) {
+					new_container.setAttribute( 'style', range_info.style );
+				}
+				build_chunks( new_sub_text, new_sub_range, range_data, new_container, options );
+			}
+			break;
 		case 'gridicon':
 			// Gridicons have special text, and are thus not recursed into
 			new_container = document.createElement( 'span' );
