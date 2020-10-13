@@ -258,7 +258,11 @@ export async function fullCreditsProcessor(
 		},
 		wpcomTransaction,
 		transactionOptions
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'SUCCESS', payload: response };
+		} );
 }
 
 export async function payPalProcessor(
